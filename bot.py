@@ -11,7 +11,7 @@ sleep(60)
 
 TOKEN = "652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20"
 PORT = int(os.environ.get('PORT', '8443'))
-updater = Updater(TOKEN)
+updater = updater(TOKEN)
 # add handlers
 updater.start_webhook(listen="0.0.0.0",
                       port=PORT,
@@ -31,7 +31,7 @@ sleep(60)
 
 TOKEN = "652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20"
 PORT = int(os.environ.get('PORT', '8443'))
-updater = Updater(TOKEN)
+updater = updater(TOKEN)
 # add handlers
 updater.start_webhook(listen="0.0.0.0",
                       port=PORT,
