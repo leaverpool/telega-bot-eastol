@@ -1,36 +1,71 @@
+import json
 import requests
-from time import sleep
+import time
+import urllib
+import config
 
 
+TOKEN = "652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20"
+URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 
-#a = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/getUpdates')
-#a = a.text
-#g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=' + a)
+def get_url(url):
+    response = requests.get(url)
+    content = response.content.decode("utf8")
+    return content
 
-#sleep(10)
+
+def get_json_from_url(url):
+    content = get_url(url)
+    js = json.loads(content)
+    return js
 
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test01')
-sleep(20)
+def get_updates(offset=None):
+    url = URL + "getUpdates"
+    if offset:
+        url += "?offset={}".format(offset)
+    js = get_json_from_url(url)
+    return js
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test02')
-sleep(20)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test03')
-sleep(20)
+def get_last_update_id(updates):
+    update_ids = []
+    for update in updates["result"]:
+        update_ids.append(int(update["update_id"]))
+    return max(update_ids)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test04')
-sleep(20)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test05')
-sleep(20)
+def echo_all(updates):
+    for update in updates["result"]:
+        text = update["message"]["text"]
+        chat = update["message"]["chat"]["id"]
+        send_message(text, chat)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test06')
-sleep(20)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test07')
-sleep(20)
+def get_last_chat_id_and_text(updates):
+    num_updates = len(updates["result"])
+    last_update = num_updates - 1
+    text = updates["result"][last_update]["message"]["text"]
+    chat_id = updates["result"][last_update]["message"]["chat"]["id"]
+    return (text, chat_id)
 
-g = requests.get('https://api.telegram.org/bot652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20/sendMessage?chat_id=292397556&text=test08')
-sleep(20)
+
+def send_message(text, chat_id):
+    text = urllib.parse.quote_plus(text)
+    url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
+    get_url(url)
+
+
+def main():
+    last_update_id = None
+    while True:
+        updates = get_updates(last_update_id)
+        if len(updates["result"]) > 0:
+            last_update_id = get_last_update_id(updates) + 1
+            echo_all(updates)
+        time.sleep(0.5)
+
+
+if __name__ == '__main__':
+    main()
