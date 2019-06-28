@@ -2,7 +2,7 @@ import requests
 import datetime
 
 token = '652844002:AAFPHFs48zVNiEoNv9Yp1rpp4l2fmBjOZ20'
-#test 000 111 222
+#test 0 111 222 333
 
 class BotHandler:
 
